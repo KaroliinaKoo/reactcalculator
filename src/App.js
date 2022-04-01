@@ -1,7 +1,16 @@
+import { useReducer } from "react";
+
+function reducer() {
+  
+}
+
 function App() {
+
+  const [state, dispatch] = useReducer(reducer)
+
   return (
     <div className="calc-container">
-      <div className="output">
+      <div className="output span">
         <div className="previous-operand"></div>
         <div className="current-operand"></div>
       </div>
@@ -27,8 +36,8 @@ function App() {
       <button>9</button>
 
       <div className="span">
-        <button>0</button>
         <button>,</button>
+        <button>0</button>
         <button>=</button>
         
       </div>
