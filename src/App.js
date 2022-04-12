@@ -25,61 +25,64 @@ function reducer(state, { type, payload }) {
         ...state,
         currentOperand: `${state.currentOperand || ""}${payload.digit}`,
       };
-    case ACTIONS.CHOOSE_OPERATOR: {
-      if (state.currentOperand == null && state.previousOperand == null) {
-        return state;
-        // if currently no numbers or an operator is already chosen,
-        //... do not accept operators
-      }
-      if (state.currentOperand == null) {
-        
-      }
+    case ACTIONS.CHOOSE_OPERATOR:
+      {
+        if (state.currentOperand == null && state.previousOperand == null) {
+          return state;
+          // if currently no numbers or an operator is already chosen,
+          //... do not accept operators
+        }
+        if (state.currentOperand == null) {
+          return {
+            ...state,
+            operation: payload.operation,
+          };
+        }
 
-
-      if (state.previousOperand == null) {
-        return {
-          ...state,          
-          previousOperand: state.currentOperand,
-          currentOperand: null,
-          operation: payload.operation,
-        };
-        //pass current state into previous operand, then clear current operand
+        if (state.previousOperand == null) {
+          return {
+            ...state,
+            previousOperand: state.currentOperand,
+            currentOperand: null,
+            operation: payload.operation,
+          };
+          //pass current state into previous operand, then clear current operand
+        }
       }
-    }
-    return {
-      ...state,
-      previousOperand: evaluate(state),
-      currentOperand: null,
-      operation: payload.operation,
-    }
+      return {
+        ...state,
+        previousOperand: evaluate(state),
+        currentOperand: null,
+        operation: payload.operation,
+      };
     case ACTIONS.CLEAR:
       return {};
   }
 }
 
 //as default, calculate current calculation before adding more numbers =>
-const evaluate = ({currentOperand, previousOperand, operation }) => {
-const current = parseFloat(currentOperand); 
-const previous = parseFloat(previousOperand); //convert strings into numbers
-if (isNaN(previous) || isNaN(current)) return ""
-//if not a number, return empty string (= do not calculate)
-let calculation = ""
-switch (operation) {
-  case "+":
-    calculation = previous + current;
-    break;
-  case "−":
-    calculation = previous - current;
-    break;
-  case "×":
-    calculation = previous * current;
-    break;
-  case "÷":
-    calculation = previous / current;
-    break;
-}
-return calculation.toString(); //convert calculation into string, and return it
-}
+const evaluate = ({ currentOperand, previousOperand, operation }) => {
+  const current = parseFloat(currentOperand);
+  const previous = parseFloat(previousOperand); //convert strings into numbers
+  if (isNaN(previous) || isNaN(current)) return "";
+  //if not a number, return empty string (= do not calculate)
+  let calculation = "";
+  switch (operation) {
+    case "+":
+      calculation = previous + current;
+      break;
+    case "−":
+      calculation = previous - current;
+      break;
+    case "×":
+      calculation = previous * current;
+      break;
+    case "÷":
+      calculation = previous / current;
+      break;
+  }
+  return calculation.toString(); //convert calculation into string, and return it
+};
 
 function App() {
   const [{ currentOperand, previousOperand, operation }, dispatch] = useReducer(
