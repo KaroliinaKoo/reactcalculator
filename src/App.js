@@ -20,11 +20,12 @@ function reducer(state, { type, payload }) {
           ...state,
           currentOperand: payload.digit,
           overrideCurrent: false,
-        }
+        };
       }
       if (payload.digit === "0" && state.currentOperand === "0") {
         return state;
       }
+      if (payload.digit === "." && state.currentOperand == null) {return state}
       if (payload.digit === "." && state.currentOperand.includes(".")) {
         return state;
       }
@@ -33,29 +34,28 @@ function reducer(state, { type, payload }) {
         currentOperand: `${state.currentOperand || ""}${payload.digit}`,
       };
     case ACTIONS.CHOOSE_OPERATOR:
-      {
-        if (state.currentOperand == null && state.previousOperand == null) {
-          return state;
-          // if currently no numbers or an operator is already chosen,
-          //... do not accept operators
-        }
-        if (state.currentOperand == null) {
-          return {
-            ...state,
-            operation: payload.operation,
-          };
-        }
-
-        if (state.previousOperand == null) {
-          return {
-            ...state,
-            previousOperand: state.currentOperand,
-            currentOperand: null,
-            operation: payload.operation,
-          };
-          //pass current state into previous operand, then clear current operand
-        }
+      if (state.currentOperand == null && state.previousOperand == null) {
+        return state;
+        // if currently no numbers or an operator is already chosen,
+        //... do not accept operators
       }
+      if (state.currentOperand == null) {
+        return {
+          ...state,
+          operation: payload.operation,
+        };
+      }
+
+      if (state.previousOperand == null) {
+        return {
+          ...state,
+          previousOperand: state.currentOperand,
+          currentOperand: null,
+          operation: payload.operation,
+        };
+        //pass current state into previous operand, then clear current operand
+      }
+
       return {
         ...state,
         previousOperand: evaluate(state),
@@ -63,8 +63,11 @@ function reducer(state, { type, payload }) {
         operation: payload.operation,
       };
     case ACTIONS.CLEAR:
-      return {};
-
+      return {
+        ...state, currentOperand:'0',
+        previousOperand:null,
+        operation:null,
+      };
     case ACTIONS.EQUALS:
       if (
         state.operation == null ||
@@ -80,6 +83,23 @@ function reducer(state, { type, payload }) {
         currentOperand: evaluate(state),
         previousOperand: null,
         operation: null,
+      };
+    case ACTIONS.DELETE_DIGIT:
+      if (state.overrideCurrent === true)
+        return {
+          ...state,
+          overrideCurrent: false,
+          currentOperand: null,
+        };
+      if (state.currentOperand == null) return state;
+      if (state.currentOperand.length === 1) {
+        //if only one number is left, remove it
+        return { ...state, currentOperand: null };
+      }
+
+      return {
+        ...state,
+        currentOperand: state.currentOperand.slice(0, -1), //default: remove last number
       };
   }
 }
@@ -108,6 +128,17 @@ const evaluate = ({ currentOperand, previousOperand, operation }) => {
   return calculation.toString(); //convert calculation into string, and return it
 };
 
+const INT_FORMATTER = new Intl.NumberFormat("en-us", {
+  maximumFractionDigits: 0,
+});
+
+function formatOperand(operand) {
+  if (operand == null) return;
+  const [int, decimal] = operand.split(".");
+  if (decimal == null) return INT_FORMATTER.format(int);
+  return `${INT_FORMATTER.format(int)}.${decimal}`;
+}
+
 function App() {
   const [{ currentOperand, previousOperand, operation }, dispatch] = useReducer(
     reducer,
@@ -118,13 +149,16 @@ function App() {
     <div className="calc-container">
       <div className="output span">
         <div className="previous-operand">
-          {previousOperand} {operation}
+          {formatOperand(previousOperand)}
+          {operation}
         </div>
-        <div className="current-operand">{currentOperand}</div>
+        <div className="current-operand">{formatOperand(currentOperand)}</div>
       </div>
       <div className="span">
         <button onClick={() => dispatch({ type: ACTIONS.CLEAR })}>C</button>
-        <button>DEL</button>
+        <button onClick={() => dispatch({ type: ACTIONS.DELETE_DIGIT })}>
+          DEL
+        </button>
       </div>
       <div className="span">
         <OperationButton operation="+" dispatch={dispatch} />
