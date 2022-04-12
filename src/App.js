@@ -15,6 +15,13 @@ function reducer(state, { type, payload }) {
   // action => type
   switch (type) {
     case ACTIONS.ADD_DIGIT:
+      if (state.overrideCurrent === true) {
+        return {
+          ...state,
+          currentOperand: payload.digit,
+          overrideCurrent: false,
+        }
+      }
       if (payload.digit === "0" && state.currentOperand === "0") {
         return state;
       }
@@ -57,6 +64,23 @@ function reducer(state, { type, payload }) {
       };
     case ACTIONS.CLEAR:
       return {};
+
+    case ACTIONS.EQUALS:
+      if (
+        state.operation == null ||
+        state.currentOperand == null ||
+        state.previousOperand == null
+      ) {
+        return state;
+      }
+      //if missing operation, current or previous operands (numbers): do not evaluate
+      return {
+        ...state,
+        overrideCurrent: true,
+        currentOperand: evaluate(state),
+        previousOperand: null,
+        operation: null,
+      };
   }
 }
 
@@ -121,7 +145,7 @@ function App() {
       <div className="span">
         <DigitButton digit="." dispatch={dispatch} />
         <DigitButton digit="0" dispatch={dispatch} />
-        <button>=</button>
+        <button onClick={() => dispatch({ type: ACTIONS.EQUALS })}>=</button>
       </div>
     </div>
   );
