@@ -155,7 +155,7 @@ function App() {
       <div className="output span">
         <div className="previous-operand">
           {formatOperand(previousOperand)}
-          {operation}
+          <span className="operator">{operation}</span>
         </div>
         <div className="current-operand">{formatOperand(currentOperand)}</div>
       </div>
