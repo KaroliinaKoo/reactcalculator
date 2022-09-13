@@ -4,11 +4,11 @@ import DigitButton from "./components/DigitButton";
 import OperationButton from "./components/OperationButton";
 
 export const ACTIONS = {
-  ADD_DIGIT: "add-digit",
-  CLEAR: "clear",
-  DELETE_DIGIT: "delete-digit",
-  CHOOSE_OPERATOR: "choose-operator",
-  EQUALS: "equals",
+  ADD_DIGIT: "add-digit", //add digit to current operand
+  CLEAR: "clear", //clear all
+  DELETE_DIGIT: "delete-digit", //delete last digit
+  CHOOSE_OPERATOR: "choose-operator", //choose operator
+  EQUALS: "equals", //evaluate
 };
 
 function reducer(state, { type, payload }) {
@@ -25,7 +25,9 @@ function reducer(state, { type, payload }) {
       if (payload.digit === "0" && state.currentOperand === "0") {
         return state;
       }
-      if (payload.digit === "." && state.currentOperand == null) {return state}
+      if (payload.digit === "." && state.currentOperand == null) {
+        return state;
+      }
       if (payload.digit === "." && state.currentOperand.includes(".")) {
         return state;
       }
@@ -64,9 +66,10 @@ function reducer(state, { type, payload }) {
       };
     case ACTIONS.CLEAR:
       return {
-        ...state, currentOperand:'0',
-        previousOperand:null,
-        operation:null,
+        ...state,
+        currentOperand: "0",
+        previousOperand: null,
+        operation: null,
       };
     case ACTIONS.EQUALS:
       if (
@@ -74,9 +77,9 @@ function reducer(state, { type, payload }) {
         state.currentOperand == null ||
         state.previousOperand == null
       ) {
-        return state;
+        return state; //if missing operation, current or previous operands (numbers): do not evaluate
       }
-      //if missing operation, current or previous operands (numbers): do not evaluate
+
       return {
         ...state,
         overrideCurrent: true,
@@ -128,10 +131,12 @@ const evaluate = ({ currentOperand, previousOperand, operation }) => {
   return calculation.toString(); //convert calculation into string, and return it
 };
 
+//format numbers with commas
 const INT_FORMATTER = new Intl.NumberFormat("en-us", {
   maximumFractionDigits: 0,
 });
 
+//format numbers with commas and decimal places
 function formatOperand(operand) {
   if (operand == null) return;
   const [int, decimal] = operand.split(".");
@@ -160,7 +165,7 @@ function App() {
           DEL
         </button>
       </div>
-      <div className="span">
+      <div className="span operator">
         <OperationButton operation="+" dispatch={dispatch} />
         <OperationButton operation="−" dispatch={dispatch} />
         <OperationButton operation="×" dispatch={dispatch} />
