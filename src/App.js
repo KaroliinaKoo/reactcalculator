@@ -8,7 +8,7 @@ export const ACTIONS = {
   CLEAR: "clear", //clear all
   DELETE_DIGIT: "delete-digit", //delete last digit
   CHOOSE_OPERATOR: "choose-operator", //choose operator
-  EQUALS: "equals", //evaluate
+  EQUALS: "equals", //evaluate current calculation
 };
 
 function reducer(state, { type, payload }) {
@@ -19,17 +19,18 @@ function reducer(state, { type, payload }) {
         return {
           ...state,
           currentOperand: payload.digit,
+          log: null,
           overrideCurrent: false,
-        };
+        }; //if overrideCurrent is true, then override currentOperand with new digit
       }
       if (payload.digit === "0" && state.currentOperand === "0") {
-        return state;
+        return state; //do not add 0 if current operand is 0 (empty)
       }
       if (payload.digit === "." && state.currentOperand == null) {
-        return state;
+        return state; //if no number before decimal point, do not add decimal point
       }
       if (payload.digit === "." && state.currentOperand.includes(".")) {
-        return state;
+        return state; //if current operand already includes a decimal point, do not add another one
       }
       return {
         ...state,
@@ -70,6 +71,7 @@ function reducer(state, { type, payload }) {
         currentOperand: "0",
         previousOperand: null,
         operation: null,
+        log: null,
       };
     case ACTIONS.EQUALS:
       if (
@@ -86,6 +88,7 @@ function reducer(state, { type, payload }) {
         currentOperand: evaluate(state),
         previousOperand: null,
         operation: null,
+        log: `${state.previousOperand} ${state.operation} ${state.currentOperand} = `,
       };
     case ACTIONS.DELETE_DIGIT:
       if (state.overrideCurrent === true)
@@ -93,6 +96,7 @@ function reducer(state, { type, payload }) {
           ...state,
           overrideCurrent: false,
           currentOperand: null,
+          log: null,
         };
       if (state.currentOperand == null) return state;
       if (state.currentOperand.length === 1) {
@@ -145,14 +149,13 @@ function formatOperand(operand) {
 }
 
 function App() {
-  const [{ currentOperand, previousOperand, operation }, dispatch] = useReducer(
-    reducer,
-    {}
-  );
+  const [{ currentOperand, previousOperand, operation, log }, dispatch] =
+    useReducer(reducer, {});
 
   return (
     <div className="calc-container">
       <div className="output span">
+        <div className="log">{log}</div>
         <div className="previous-operand">
           {formatOperand(previousOperand)}
           <span className="operator">{operation}</span>
