@@ -39,15 +39,14 @@ function reducer(state, { type, payload }) {
     case ACTIONS.CHOOSE_OPERATOR:
       if (state.currentOperand == null && state.previousOperand == null) {
         return state;
-        // if currently no numbers or an operator is already chosen,
-        //... do not accept operators
+        // if currently no numbers or an operator is already chosen, do not accept operators
       }
       if (state.currentOperand == null) {
         return {
           ...state,
           operation: payload.operation,
         };
-      }
+      } //if no current operand, but previous operand exists, then change operator
 
       if (state.previousOperand == null) {
         return {
@@ -62,9 +61,12 @@ function reducer(state, { type, payload }) {
       return {
         ...state,
         previousOperand: evaluate(state),
+        log: `${state.previousOperand} ${state.operation} ${state.currentOperand} = `,
         currentOperand: null,
         operation: payload.operation,
       };
+    //if previous operand is not null, evaluate current calculation
+
     case ACTIONS.CLEAR:
       return {
         ...state,
@@ -72,7 +74,8 @@ function reducer(state, { type, payload }) {
         previousOperand: null,
         operation: null,
         log: null,
-      };
+      }; //clear all
+
     case ACTIONS.EQUALS:
       if (
         state.operation == null ||
@@ -89,7 +92,8 @@ function reducer(state, { type, payload }) {
         previousOperand: null,
         operation: null,
         log: `${state.previousOperand} ${state.operation} ${state.currentOperand} = `,
-      };
+      }; //evaluate current calculation
+
     case ACTIONS.DELETE_DIGIT:
       if (state.overrideCurrent === true)
         return {
@@ -98,7 +102,9 @@ function reducer(state, { type, payload }) {
           currentOperand: null,
           log: null,
         };
+      //if overrideCurrent is true, then delete current operand
       if (state.currentOperand == null) return state;
+      //if no current operand, do not delete
       if (state.currentOperand.length === 1) {
         //if only one number is left, remove it
         return { ...state, currentOperand: null };
@@ -150,7 +156,7 @@ function formatOperand(operand) {
 
 function App() {
   const [{ currentOperand, previousOperand, operation, log }, dispatch] =
-    useReducer(reducer, {});
+    useReducer(reducer, {}); //useReducer hook to manage state and dispatch actions
 
   return (
     <div className="calc-container">
