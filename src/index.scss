@@ -3,6 +3,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&display=swap');
 
 
+canvas {
+  display: none;
+}
+
 :root {}
 
 *,
@@ -21,7 +25,6 @@ body {
   font-family: 'Roboto', sans-serif;
   color: #ffffff;
   background-color: #fc466a;
-  //background: linear-gradient(-90deg, #fc466a, #3f5efb 100%);
   background: linear-gradient(95deg, #fc466a, #3f5efb 100%);
   background-size: 250% 200%;
   animation: gradient 16s ease infinite;

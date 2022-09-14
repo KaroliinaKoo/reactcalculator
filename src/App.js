@@ -1,5 +1,5 @@
 /* eslint-disable default-case */
-import { useReducer } from "react";
+import { useEffect, useReducer } from "react";
 import DigitButton from "./components/DigitButton";
 import OperationButton from "./components/OperationButton";
 
@@ -62,6 +62,7 @@ function reducer(state, { type, payload }) {
         ...state,
         previousOperand: evaluate(state),
         log: `${state.previousOperand} ${state.operation} ${state.currentOperand} = `,
+
         currentOperand: null,
         operation: payload.operation,
       };
